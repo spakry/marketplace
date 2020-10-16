@@ -1,0 +1,113 @@
+{% extends "auctions/layout.html" %}
+
+{% block nav_title %} Auctions!  {% endblock %}
+
+{% block body %}
+    <h2>Active Listings</h2>
+{% endblock %}
+
+{% block main_content %}
+<div id="listings" class="container"></div>
+
+
+<script>
+    let counter=0;
+    const quant=10;
+    document.addEventListener('DOMContentLoaded', load);
+    window.onscroll =()=> {
+        if(window.innerHeight+window.scrollY>=document.body.offsetHeight){
+            load();
+        }
+    };
+
+    function load(){
+        const start=counter;
+        const end=start+quant;
+        counter=end+1;
+
+
+        const request=new XMLHttpRequest();
+        request.open('GET', '/listings/'+start+'/'+end)+'/';
+        request.responseType = 'text';
+        request.onload=()=> {
+                console.log('resp'+request.responseText);
+                let data=JSON.parse(request.responseText);
+                
+                for (var i = 0; i < data.length; i++) {
+                    var elem = data[i].fields;
+                    
+                    const listing=document.createElement('div');
+                    listing.className='card';
+                    listing.style.padding='16px'
+                    document.querySelector('#listings').appendChild(listing);
+
+                    const card=document.createElement('img');
+                    card.className='card-img-top';
+                    card.style.maxWidth= '60%';
+                    card.style.width= '800px';
+                    card.style.margin= 'auto';
+                    card.src=elem.item_image_url;
+                    listing.appendChild(card);
+
+                    const h=document.createElement('h5');
+                    h.className='card-title';
+                    h.innerHTML= elem.item_name;
+                    h.style.margin= 'auto';
+                    h.style.paddingTop='8px';
+                    listing.appendChild(h);
+
+                    const p=document.createElement('p');
+                    p.className='card-text';
+                    p.innerHTML= elem.item_description;
+                    p.style.margin= 'auto';
+                    listing.appendChild(p);
+
+                    const btn=document.createElement('button');
+                    btn.className='btn btn-primary';
+                    btn.type='button';
+                    btn.innerHTML= "Place Bid";
+                    btn.style.width='400px'
+                    btn.style.margin= 'auto';
+                    
+                   
+                    btn.mId=data[i].pk;
+                    console.log('test '+ btn.mId);
+                    btn.onclick =  function(data) {
+                        data=this.mId;
+                        location.assign("/listings/"+data );
+                    }  
+
+                    
+                    listing.appendChild(btn);
+
+                    
+                    
+
+                    const text=document.createElement('p');
+                    text.className='card-text';
+                    text.style.margin= 'auto';
+                    listing.appendChild(text);
+                    
+                    const s=document.createElement('small');
+                    s.className='text-muted';
+                    s.style.margin= 'auto';
+                    s.innerHTML= 'Created at '+elem.time_posted;
+                    text.appendChild(s);      
+                }
+                
+
+            };
+            // const data=new FormData();
+            var token='{{csrf_token}}';
+            // data.append('start',start);
+            // data.append('end',end);
+            //for authentication
+            request.setRequestHeader('X-CSRFToken',token);
+            // request.send(data);
+            request.send();
+
+    }
+
+</script>
+
+{% endblock %}
