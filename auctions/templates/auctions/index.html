@@ -69,9 +69,8 @@
                     btn.style.width='400px'
                     btn.style.margin= 'auto';
                     
-                   
+
                     btn.mId=data[i].pk;
-                    console.log('test '+ btn.mId);
                     btn.onclick =  function(data) {
                         data=this.mId;
                         location.assign("/listings/"+data );
